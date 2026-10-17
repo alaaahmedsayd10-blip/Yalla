@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yalla City — تجربة</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101827;color:#f4f7ff;font-family:system-ui,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:#172338;border-bottom:1px solid #2c3c55}
+.brand{font-size:22px;font-weight:800;color:#7ce7d4}.hint{font-size:13px;color:#b6c4d9}
+main{max-width:1000px;margin:auto;padding:16px}.panel{background:#172338;border:1px solid #2c3c55;border-radius:14px;padding:12px;margin-bottom:12px}
+canvas{display:block;width:100%;height:auto;max-height:65vh;aspect-ratio:16/10;background:#a7cfa7;border-radius:10px;image-rendering:pixelated;touch-action:none}
+.controls{display:grid;grid-template-columns:repeat(3,60px);gap:6px;justify-content:center;margin:12px auto}
+button{border:1px solid #405575;background:#263a56;color:white;border-radius:10px;padding:12px;font-size:16px;cursor:pointer}.controls button{height:48px}.empty{visibility:hidden}
+input{background:#101827;color:white;border:1px solid #405575;border-radius:8px;padding:10px;min-width:0;flex:1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.status{color:#7ce7d4;font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="brand">✦ Yalla City</div><div class="hint">نسخة تجريبية قابلة للعب · لاعب واحد</div></header>
+<main>
+<div class="panel"><div class="row"><label for="nickname">اسم شخصيتك</label><input id="nickname" maxlength="16" value="لاعب يلا"><button id="apply">تطبيق الاسم</button></div><p class="hint">حرّك شخصيتك بالأسهم أو WASD، أو استخدم أزرار الموبايل. دي تجربة أولية وليست خوادم WorkAdventure الكاملة.</p></div>
+<div class="panel"><canvas id="world" width="800" height="500" aria-label="خريطة تجريبية Yalla City"></canvas>
+<div class="controls" aria-label="أزرار الحركة"><button class="empty" tabindex="-1"> </button><button data-dir="up">▲</button><button class="empty" tabindex="-1"> </button><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div>
+<div class="row"><span class="status" id="status">أهلًا بك في Yalla City!</span><span class="hint">الموقع: ساحة المدينة</span></div></div>
+<div class="panel"><b>موجود في التجربة</b><p class="hint">خريطة بسيطة، شخصية تتحرك، اسم مخصص، وتحكم مناسب للموبايل. تسجيل الحسابات، تعدد اللاعبين، الشات، والصوت والفيديو غير مفعّلين في هذه النسخة.</p></div>
+</main>
+<script>
+const c=document.getElementById('world'),ctx=c.getContext('2d'),nameInput=document.getElementById('nickname'),status=document.getElementById('status');
+const p={x:400,y:250,name:nameInput.value};const keys=new Set();let last=0;
+function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
+function draw(){
+ rect(0,0,800,500,'#a8cfa6');
+ // tiled grass
+ for(let y=0;y<500;y+=40)for(let x=0;x<800;x+=40){if(((x/40+y/40)%2)===0)rect(x,y,40,40,'#9dc59b')}
+ // paths and plaza
+ rect(0,215,800,70,'#e8d8b5');rect(345,0,110,500,'#e8d8b5');
+ // park
+ rect(35,35,230,145,'#6fa878');rect(535,320,220,135,'#6fa878');
+ for(const [x,y] of [[80,75],[190,90],[115,145],[600,365],[700,400],[660,345]]){ctx.fillStyle='#397b51';ctx.beginPath();ctx.arc(x,y,19,0,Math.PI*2);ctx.fill();rect(x-4,y+10,8,18,'#78573e')}
+ // buildings
+ for(const b of [{x:490,y:45,w:205,h:115,col:'#e6a66c',label:'مقهى يلا'},{x:40,y:315,w:230,h:125,col:'#d5a1c8',label:'مركز المدينة'},{x:530,y:190,w:205,h:90,col:'#8cb6d9',label:'متجر'}]){
+ rect(b.x,b.y,b.w,b.h,b.col);rect(b.x+10,b.y+10,b.w-20,15,'#fff2d7');
+ ctx.fillStyle='#27364c';ctx.font='bold 16px system-ui';ctx.textAlign='center';ctx.fillText(b.label,b.x+b.w/2,b.y+b.h/2+5);
+ for(let xx=b.x+20;xx<b.x+b.w-10;xx+=45)rect(xx,b.y+b.h-35,22,25,'#7d9aab');
+ }
+ // plaza decoration
+ ctx.fillStyle='#8eaa9a';ctx.beginPath();ctx.arc(400,250,35,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#d9f1e7';ctx.beginPath();ctx.arc(400,250,25,0,Math.PI*2);ctx.fill();
+ // player
+ ctx.fillStyle='rgba(25,38,55,.2)';ctx.beginPath();ctx.ellipse(p.x,p.y+17,14,6,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#354fbe';ctx.beginPath();ctx.arc(p.x,p.y,13,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#ffd9b3';ctx.beginPath();ctx.arc(p.x,p.y-4,8,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#172338';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText(p.name.slice(0,18),p.x,p.y-23);
+}
+function step(t){if(t-last>16){const s=2.6;if(keys.has('ArrowUp')||keys.has('w'))p.y-=s;if(keys.has('ArrowDown')||keys.has('s'))p.y+=s;if(keys.has('ArrowLeft')||keys.has('a'))p.x-=s;if(keys.has('ArrowRight')||keys.has('d'))p.x+=s;p.x=Math.max(18,Math.min(782,p.x));p.y=Math.max(25,Math.min(480,p.y));draw();last=t}requestAnimationFrame(step)}
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys.add(e.key.toLowerCase())});
+addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+document.querySelectorAll('[data-dir]').forEach(b=>{const k={up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'}[b.dataset.dir];const on=e=>{e.preventDefault();keys.add(k)},off=e=>{e.preventDefault();keys.delete(k)};b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+document.getElementById('apply').addEventListener('click',()=>{p.name=nameInput.value.trim()||'لاعب يلا';status.textContent='أهلًا يا '+p.name+'!'});
+draw();requestAnimationFrame(step);
+</script></body></html>
