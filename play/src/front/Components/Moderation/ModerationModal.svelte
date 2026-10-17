@@ -157,7 +157,7 @@
         type="button"
         data-testid={testId}
         {onclick}
-        class="flex flex-row items-center gap-3 w-full p-3 rounded-lg text-left bg-white/5 hover:bg-white/15 transition-colors"
+        class="flex flex-row items-center gap-3 w-full p-3 rounded-lg text-left bg-white/5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent active:scale-[0.99] transition-all"
     >
         <span class="flex items-center">{@render icon()}</span>
         <span class="flex flex-col">
